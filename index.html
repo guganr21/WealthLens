@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WealthLens – Personal & Family Financial Management</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="onboarding hidden">
+  <div class="onboarding-card">
+    <div class="brand-mark large">
+      <span class="lens-icon">◉</span>
+      <h1>WealthLens</h1>
+    </div>
+    <p class="onboarding-sub">Premium personal &amp; family financial management. Your data stays in your browser.</p>
+    <form id="onboarding-form">
+      <div class="field">
+        <label>Your Name *</label>
+        <input type="text" id="ob-name" required placeholder="e.g. Myself, Father, Mother" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Age</label>
+          <input type="number" id="ob-age" min="0" max="120" placeholder="e.g. 30" />
+        </div>
+        <div class="field">
+          <label>Occupation</label>
+          <input type="text" id="ob-occupation" placeholder="e.g. Software Engineer" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Email (optional)</label>
+        <input type="email" id="ob-email" placeholder="you@example.com" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Create Profile &amp; Start</button>
+    </form>
+    <p class="privacy-mini">🔒 All data is stored locally in your browser. Nothing is sent to any server.</p>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app" class="app hidden">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-mark">
+        <span class="lens-icon">◉</span>
+        <span class="brand-text">WealthLens</span>
+      </div>
+      <button id="sidebar-collapse" class="icon-btn" title="Collapse">«</button>
+    </div>
+
+    <div class="profile-switcher">
+      <label>Active Profile</label>
+      <div class="profile-select-row">
+        <select id="profile-select"></select>
+        <button id="add-profile-btn" class="icon-btn accent" title="Add Person">+</button>
+      </div>
+      <div class="profile-actions">
+        <button id="edit-profile-btn" class="mini-btn">Edit</button>
+        <button id="delete-profile-btn" class="mini-btn danger">Delete</button>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#dashboard" class="nav-link active" data-view="dashboard"><span class="nav-ico">▦</span><span class="nav-txt">Dashboard</span></a>
+      <a href="#family" class="nav-link" data-view="family"><span class="nav-ico">👪</span><span class="nav-txt">Family</span></a>
+      <a href="#income" class="nav-link" data-view="income"><span class="nav-ico">💰</span><span class="nav-txt">Income</span></a>
+      <a href="#expenses" class="nav-link" data-view="expenses"><span class="nav-ico">🧾</span><span class="nav-txt">Expenses</span></a>
+      <a href="#assets" class="nav-link" data-view="assets"><span class="nav-ico">🏠</span><span class="nav-txt">Assets</span></a>
+      <a href="#investments" class="nav-link" data-view="investments"><span class="nav-ico">📈</span><span class="nav-txt">Investments</span></a>
+      <a href="#loans" class="nav-link" data-view="loans"><span class="nav-ico">🏦</span><span class="nav-txt">Loans</span></a>
+      <a href="#insurance" class="nav-link" data-view="insurance"><span class="nav-ico">🛡️</span><span class="nav-txt">Insurance</span></a>
+      <a href="#banking" class="nav-link" data-view="banking"><span class="nav-ico">💳</span><span class="nav-txt">Banking</span></a>
+      <a href="#retirement" class="nav-link" data-view="retirement"><span class="nav-ico">🌅</span><span class="nav-txt">Retirement</span></a>
+      <a href="#score" class="nav-link" data-view="score"><span class="nav-ico">❤️</span><span class="nav-txt">Health Score</span></a>
+      <a href="#report" class="nav-link" data-view="report"><span class="nav-ico">📄</span><span class="nav-txt">Report</span></a>
+      <a href="#settings" class="nav-link" data-view="settings"><span class="nav-ico">⚙️</span><span class="nav-txt">Settings</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="save-indicator" id="save-indicator">● Saved</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <button id="menu-toggle" class="icon-btn hidden-desktop" title="Menu">☰</button>
+      <div class="topbar-title" id="view-title">Dashboard</div>
+      <div class="topbar-right">
+        <span class="pill pill-green" id="topbar-networth">Net worth: ₹0</span>
+        <button class="btn btn-primary" id="quick-add-btn">+ Quick Add</button>
+      </div>
+    </header>
+
+    <div id="views" class="views">
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="chart-grid">
+          <div class="card"><h3>Income vs Expenses</h3><div class="chart-wrap"><canvas id="chart-income-expense"></canvas></div></div>
+          <div class="card"><h3>Assets vs Liabilities</h3><div class="chart-wrap"><canvas id="chart-assets-liabilities"></canvas></div></div>
+          <div class="card"><h3>Investment Allocation</h3><div class="chart-wrap"><canvas id="chart-investments"></canvas></div></div>
+          <div class="card"><h3>Expense Breakdown</h3><div class="chart-wrap"><canvas id="chart-expenses"></canvas></div></div>
+          <div class="card span-2"><h3>Net-Worth Overview</h3><div class="chart-wrap tall"><canvas id="chart-networth"></canvas></div></div>
+        </div>
+      </section>
+
+      <!-- FAMILY -->
+      <section id="view-family" class="view">
+        <div class="view-head"><h2>Family Members</h2><button class="btn btn-green" data-add="family">+ Add Family Member</button></div>
+        <div class="card"><div class="table-wrap"><table id="table-family"></table></div><div class="empty" id="empty-family">No family members yet.</div></div>
+      </section>
+
+      <!-- INCOME -->
+      <section id="view-income" class="view">
+        <div class="view-head"><h2>Income Management</h2><button class="btn btn-green" data-add="income">+ Add Income</button></div>
+        <div class="summary-row" id="income-summary"></div>
+        <div class="card"><div class="table-wrap"><table id="table-income"></table></div><div class="empty" id="empty-income">No income recorded.</div></div>
+      </section>
+
+      <!-- EXPENSES -->
+      <section id="view-expenses" class="view">
+        <div class="view-head"><h2>Expense Management</h2><button class="btn btn-green" data-add="expense">+ Add Expense</button></div>
+        <div class="summary-row" id="expense-summary"></div>
+        <div class="card"><div class="table-wrap"><table id="table-expenses"></table></div><div class="empty" id="empty-expenses">No expenses recorded.</div></div>
+      </section>
+
+      <!-- ASSETS -->
+      <section id="view-assets" class="view">
+        <div class="view-head"><h2>Assets Management</h2><button class="btn btn-green" data-add="asset">+ Add Asset</button></div>
+        <div class="summary-row" id="asset-summary"></div>
+        <div class="card"><div class="table-wrap"><table id="table-assets"></table></div><div class="empty" id="empty-assets">No assets yet.</div></div>
+      </section>
+
+      <!-- INVESTMENTS -->
+      <section id="view-investments" class="view">
+        <div class="view-head"><h2>Investments &amp; Savings</h2><button class="btn btn-green" data-add="investment">+ Add Investment</button></div>
+        <div class="summary-row" id="investment-summary"></div>
+        <div class="card"><div class="table-wrap"><table id="table-investments"></table></div><div class="empty" id="empty-investments">No investments yet.</div></div>
+      </section>
+
+      <!-- LOANS -->
+      <section id="view-loans" class="view">
+        <div class="view-head"><h2>Loans &amp; Liabilities</h2><button class="btn btn-green" data-add="loan">+ Add Loan</button></div>
+        <div class="summary-row" id="loan-summary"></div>
+        <div class="card"><div class="table-wrap"><table id="table-loans"></table></div><div class="empty" id="empty-loans">No loans recorded.</div></div>
+      </section>
+
+      <!-- INSURANCE -->
+      <section id="view-insurance" class="view">
+        <div class="view-head"><h2>Insurance Management</h2><button class="btn btn-green" data-add="insurance">+ Add Policy</button></div>
+        <div class="summary-row" id="insurance-summary"></div>
+        <div class="card"><div class="table-wrap"><table id="table-insurance"></table></div><div class="empty" id="empty-insurance">No insurance policies.</div></div>
+      </section>
+
+      <!-- BANKING -->
+      <section id="view-banking" class="view">
+        <div class="view-head"><h2>Bank Accounts &amp; Emergency Fund</h2><button class="btn btn-green" data-add="bank">+ Add Bank Account</button></div>
+        <div class="summary-row" id="banking-summary"></div>
+        <div class="card"><div class="table-wrap"><table id="table-banking"></table></div><div class="empty" id="empty-banking">No bank accounts.</div></div>
+      </section>
+
+      <!-- RETIREMENT -->
+      <section id="view-retirement" class="view">
+        <div class="view-head"><h2>Retirement Planning</h2></div>
+        <div class="card">
+          <h3>Inputs</h3>
+          <form id="retirement-form" class="grid-form">
+            <div class="field"><label>Current Age</label><input type="number" id="ret-age" min="15" max="100" /></div>
+            <div class="field"><label>Current Retirement Savings (₹)</label><input type="number" id="ret-savings" min="0" /></div>
+            <div class="field"><label>Expected Monthly Retirement Expenses (₹)</label><input type="number" id="ret-expenses" min="0" /></div>
+            <div class="field"><label>Annual Inflation Rate (%)</label><input type="number" id="ret-inflation" step="0.1" min="0" max="20" value="6" /></div>
+            <div class="field"><label>Expected Annual Return (%)</label><input type="number" id="ret-return" step="0.1" min="0" max="30" value="10" /></div>
+            <div class="field"><label>Life Expectancy</label><input type="number" id="ret-life" min="50" max="120" value="85" /></div>
+          </form>
+          <p class="hint" id="ret-incomplete-hint">Fill in the required fields to see retirement projections.</p>
+        </div>
+        <div class="summary-row" id="retirement-summary"></div>
+        <div class="card"><h3>Scenario Comparison (Retirement Ages)</h3><div class="table-wrap"><table id="table-retirement"></table></div></div>
+        <div class="card"><h3>Calculation Assumptions</h3><ul class="assumptions" id="retirement-assumptions"></ul></div>
+      </section>
+
+      <!-- SCORE -->
+      <section id="view-score" class="view">
+        <div class="view-head"><h2>Financial Health Score</h2></div>
+        <div class="score-hero card" id="score-hero"></div>
+        <div class="score-cats" id="score-cats"></div>
+        <div class="card"><h3>Strengths</h3><ul id="score-strengths" class="assumptions"></ul></div>
+        <div class="card"><h3>Weaknesses</h3><ul id="score-weaknesses" class="assumptions"></ul></div>
+        <div class="card"><h3>Recommendations</h3><ul id="score-recommendations" class="assumptions"></ul></div>
+      </section>
+
+      <!-- REPORT -->
+      <section id="view-report" class="view">
+        <div class="view-head"><h2>Financial Report</h2></div>
+        <div class="card report-card">
+          <p>Generate a complete PDF financial report for the active profile. The report is generated entirely in your browser using jsPDF.</p>
+          <button class="btn btn-primary btn-lg" id="download-report-btn">⬇ Download Financial Report (PDF)</button>
+          <p class="hint">Includes personal info, family, income, expenses, assets, liabilities, net worth, investments, insurance, loans, retirement projections, financial health score, strengths, weaknesses, recommendations, assumptions, and a disclaimer.</p>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="view-settings" class="view">
+        <div class="view-head"><h2>Settings &amp; Data</h2></div>
+        <div class="card">
+          <h3>Backup &amp; Restore</h3>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="export-json-btn">⬇ Export JSON Backup</button>
+            <label class="btn btn-green file-label">⬆ Import JSON Backup<input type="file" id="import-json-input" accept="application/json" hidden /></label>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Danger Zone</h3>
+          <button class="btn btn-danger" id="reset-all-btn">Reset All Data</button>
+        </div>
+        <div class="card">
+          <h3>Privacy Notice</h3>
+          <p class="hint">
+            WealthLens stores all financial information in your browser's LocalStorage.
+            <strong>LocalStorage is not encrypted by default.</strong> Anyone with access to your device and browser profile
+            may be able to view the stored data. Clearing browser data, using private/incognito mode, or
+            uninstalling the browser may permanently erase your saved information. No financial data is
+            transmitted to any external server.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal hidden">
+  <div class="modal-backdrop" data-close="true"></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modal-title">Modal</h3>
+      <button class="icon-btn" data-close="true">✕</button>
+    </div>
+    <form id="modal-form" class="modal-body"></form>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" data-close="true">Cancel</button>
+      <button type="submit" form="modal-form" class="btn btn-primary" id="modal-submit">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Scripts (order matters) -->
+<script src="js/storage.js"></script>
+<script src="js/calculations.js"></script>
+<script src="js/profiles.js"></script>
+<script src="js/family.js"></script>
+<script src="js/income.js"></script>
+<script src="js/expenses.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/investments.js"></script>
+<script src="js/loans.js"></script>
+<script src="js/insurance.js"></script>
+<script src="js/retirement.js"></script>
+<script src="js/financial-score.js"></script>
+<script src="js/report.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
